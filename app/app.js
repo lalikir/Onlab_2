@@ -100,14 +100,9 @@ io.sockets.on('connection', function (socket) {
 	{
 		//socket.emit('torefresh', { msg: "reggeli"});
 		console.log(data);
-//		dashboards[data.dashboardid]=data;
-
-		
-		
-		
-
-		//-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
-		for(var i=0; i<parsedJSON.length; i++){
+		console.log("get");
+		if(typeof data.cityname === 'undefined'){
+					for(var i=0; i<parsedJSON.length; i++){
 			if (parsedJSON[i].name == data)
 				{
 //					console.log(parsedJSON[i]._id);
@@ -115,6 +110,26 @@ io.sockets.on('connection', function (socket) {
 				}
 //				else 	console.log("nincs");		
 		}
+			}
+			else{
+				for(var i=0; i<parsedJSON.length; i++){
+				if (parsedJSON[i].name == data.cityname)
+					{
+//					console.log(parsedJSON[i]._id);
+						city_id = parsedJSON[i]._id
+					}
+//				else 	console.log("nincs");		
+				}
+				
+			}
+//		dashboards[data.dashboardid]=data;
+
+		
+		
+		
+
+		//-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
+
 		
 		
 		
@@ -138,7 +153,8 @@ io.sockets.on('connection', function (socket) {
 				
 		        // Print the json response
 			   JSONstring = JSON.stringify(body);
-			   //console.log(JSONstring);
+			   
+			   console.log(JSONstring);
 
 				socket.emit("buildchart", JSONstring);
 			}
