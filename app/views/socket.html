@@ -160,6 +160,10 @@
 
       function getItemElement() {
         var elem = document.createElement('div');
+		//document.getElementById('sizes').value = my_cities[recent_city].sizestring;
+
+		console.log("Getelement" + $("#sizes option:selected").text())
+		
 			if($("#sizes option:selected").text()=="Kicsi"){
 				var widthClass = 'w2';
 				var heightClass = 'h2';
@@ -265,13 +269,13 @@
 
       function loadStoredElements(){
           //$('#charts').append($('<div/>', { id: 'linechart_material_' + recent_city, 'class' : 'linechart item w4 h4'}));
+		  document.getElementById('sizes').value = my_cities[recent_city].sizestring;
           LastElement=addNewDataElement();
           if (LastElement.id == my_cities[recent_city].elemid) {
 				LastElement.style.left = my_cities[recent_city].left; 
 				LastElement.style.top = my_cities[recent_city].top;
               console.log(LastElement.style.left); // my_cities[recent_city].top;
                LastElement.style.left = my_cities[recent_city].left;
-				document.getElementById('sizes').value = my_cities[recent_city].sizestring;
 
 			   
 			   
@@ -364,18 +368,18 @@
       chartdata = new google.visualization.DataTable();
       chartdata.addColumn('string', 'Day');
       chartdata.addColumn('number', 'Napi átlag C°');
-	  
+	  console.log($("#sizes option:selected").text());
 	   if($("#sizes option:selected").text()=="Kicsi"){
-          var widthClass = 'w4';
-          var heightClass = 'h4';
+          var widthClass = '80px';
+          var heightClass = '80px';
 		  }
 		  else if($("#sizes option:selected").text()=="Közepes"){
-          var widthClass = 'w4';
-          var heightClass = 'h4';
+          var widthClass = "460px";
+          var heightClass = "260px";
 		  }
-		  else {
-          var widthClass = 'w6';
-          var heightClass = 'h6';
+		  else if($("#sizes option:selected").text()=="Nagy") {
+          var widthClass = "700px";
+          var heightClass = "390px";
 		  }
         options = {
           chart: {
