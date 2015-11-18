@@ -38,10 +38,17 @@ var ujvaltozo;  //
 app.get('/', function (req, res) {
 	dash_id = Math.floor((Math.random() * 100000000) + 1);
 //	res.send({dashboardid: dash_id});
+	app.use('/img',express.static(path.join(__dirname, 'public/assets/img')));
 	res.redirect('/dash/'+ dash_id);
 
 });
 
+app.get('/assets/img/:file', function (req, res) {
+	
+//	res.send({dashboardid: dash_id});
+	app.use(express.static(path.join(__dirname, 'public/assets/img')));
+
+});
 
 app.get('/dash/:id', function (req, res) {
 	console.log("dash"+req.params.id);
@@ -154,7 +161,7 @@ io.sockets.on('connection', function (socket) {
 		        // Print the json response
 			   JSONstring = JSON.stringify(body);
 			   
-			   console.log(JSONstring);
+			   //console.log(JSONstring);
 
 				socket.emit("buildchart", JSONstring);
 			}
@@ -217,6 +224,32 @@ io.sockets.on('connection', function (socket) {
 				//var pos = JSON.parse(data);
 				//console.log(pos[1].elemid);
 				
+					
+					
+			}
+		}
+	)
+	
+		socket.on("delete", function(data){
+			
+			//console.log(data[0].id);
+			//console.log(data.length);
+			//console.log(dashboards[data.id].length);
+
+		
+
+		//console.log(pos.elemid); 
+		console.log("delete:");
+		console.log(data);
+		for (i=0; i<dashboards[data.id].length; i++){
+			if(dashboards[data.id][i].elemid == data.elemid){
+				//dasboards.splice(dashboards[data.id][i], 1);
+				console.log(dashboards[data.id][i]);
+
+				
+			}
+			
+
 					
 					
 			}

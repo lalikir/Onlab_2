@@ -68,6 +68,16 @@
           border-color: white;
           cursor: move;
       }
+	  a {
+	  position: absolute;
+	  top: 0px;
+	  right: 0px;
+	  width: 20px;
+	  height: 20px;
+	  background: url('../assets/img/delete-icon.png');
+	  background-size: 	contain;
+	  cursor: pointer;
+	  }
 
       .item.w2 { width:   80px; background: #9C0; }
       .item.h2 { height:  80px; background: #0C9; }
@@ -137,6 +147,7 @@
       var cities = [];
       var positionlist = [];
 	  var sizestring = "";
+	  var actualElement = {};
 
 
 
@@ -162,7 +173,7 @@
         var elem = document.createElement('div');
 		//document.getElementById('sizes').value = my_cities[recent_city].sizestring;
 
-		console.log("Getelement" + $("#sizes option:selected").text())
+		//console.log("Getelement" + $("#sizes option:selected").text())
 		
 			if($("#sizes option:selected").text()=="Kicsi"){
 				var widthClass = 'w2';
@@ -319,23 +330,7 @@
               callback: moveReaction
           });
 
-          function moveR(){
-		  positionlist = [];
-              for (i=0; i<recent_city; i++){
-                  var tmp = document.getElementById('linechart_material_'+i );
-                  var o ={};
-				  o.id = dashboardid;
-                  o.elemid=tmp.id;
-                  o.cityname = cities[i];
-                  o.top = tmp.style.top;
-                  o.left = tmp.style.left;
-				  o.charts = document.getElementById('charts').style.height;
-                  positionlist.push(o);
-              }
-              console.log(JSON.stringify(positionlist));
-              socket.emit("positions", positionlist);
 
-          }
 
           function moveReaction() {
               if (moveTimeout)
@@ -344,6 +339,28 @@
               moveTimeout=setTimeout(moveR,500);
           }
       }
+	  
+	            function moveR(){
+		  positionlist = [];
+              for (i=0; i<recent_city; i++){
+                  var tmp = document.getElementById('linechart_material_'+i );
+				  if(tmp){
+				  console.log("kiir");
+				  console.log(tmp);
+                  var o ={};
+				  o.id = dashboardid;
+                  o.elemid=tmp.id;
+                  o.cityname = cities[i];
+                  o.top = tmp.style.top;
+                  o.left = tmp.style.left;
+				  o.charts = document.getElementById('charts').style.height;
+                  positionlist.push(o);
+				  }
+              }
+              console.log(JSON.stringify(positionlist));
+              socket.emit("positions", positionlist);
+
+          }
 	  
 	  
 	  function modifyPositions(){
@@ -355,6 +372,28 @@
 			current.style.left = my_cities[i].left;
 		}
 	  }
+	  
+	function removeItem(){
+	console.log();
+	
+		var $container = $('.packery').packery();
+		$container.packery( 'remove', this.parentNode );
+		$container.packery();
+		/*if (my_cities.length!=0){
+			for(i = 0; i<my_cities.length; i++)
+			{
+				if(my_cities[i].elemid == this.parentNode.id){
+					socket.emit("delete", {id:dashboardid,  elemid: my_cities[i].elemid});
+					my_cities.splice(i,1);
+					
+					
+				}
+			}
+			
+			moveR();
+		}*/
+		
+	}
 	  
 
 
@@ -389,15 +428,27 @@
           width: widthClass,
           height: heightClass
         };
-      chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ));
+      chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ))
+	  var aTag = document.createElement('a');
+	  aTag.onclick = removeItem;
+	  aTag.innerHTML = "";
+	  
+	  actualElement = document.getElementById('linechart_material_'+recent_city );
+	  
       recent_city++;
 
 
       var rows = createArray (chartJSON);
 
       chartdata.addRows(rows);
+	  
+
 
       callback();
+	  
+	  actualElement.appendChild(aTag);
+
+
 
       }
 
@@ -448,7 +499,7 @@
   /********************** Chart adatai**************************/
 
       google.load('visualization', '1.1', {packages: ['line']});
-      console.log("meghívva");
+      //console.log("meghívva");
       google.setOnLoadCallback(drawChart);
 
       function drawChart() {
