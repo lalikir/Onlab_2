@@ -203,8 +203,11 @@ io.sockets.on('connection', function (socket) {
 		
 
 		//console.log(pos.elemid); 
-		console.log("elemek:");
+		console.log("elemek:"); 
 		console.log(data);
+		console.log(dashboards[data[0].id].length);
+		console.log(dashboards[data[0].id]);
+		
  		for (i=0; i<dashboards[data[0].id].length; i++){
 			if(dashboards[data[0].id][i].elemid == data[i].elemid){
 				dashboards[data[0].id][i].top = data[i].top;
@@ -212,6 +215,7 @@ io.sockets.on('connection', function (socket) {
 				dashboards[data[0].id][i].wrapper_height = data[i].charts;
 				
 			}
+		
 			
 		/*	if(dashboards[i][0] == data[0].id)
 			{
@@ -242,9 +246,12 @@ io.sockets.on('connection', function (socket) {
 		console.log("delete:");
 		console.log(data);
 		for (i=0; i<dashboards[data.id].length; i++){
+			console.log("szaml:" + i);
 			if(dashboards[data.id][i].elemid == data.elemid){
-				//dasboards.splice(dashboards[data.id][i], 1);
+				console.log(dashboards[data.id][i].elemid);
 				console.log(dashboards[data.id][i]);
+				dashboards[data.id].splice([i], 1); 
+				//console.log(dashboards[data.id][i]);
 
 				
 			}

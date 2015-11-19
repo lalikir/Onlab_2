@@ -46,7 +46,7 @@
 
       .packery {
           background: #FDD;
-          background: hsla(45, 100%, 40%, 0.2);
+          background: hsla(45, 1%, 90%, 0.2);
       }
 
       /* clearfix */
@@ -59,9 +59,9 @@
           width: 40px;
           height: 40px;
           float: left;
-          background: #C09;
-          border: 4px solid #333;
-          border-color: hsla(0, 0%, 0%, 0.3);
+          background: white;
+          border: 0px solid #333;
+          border-color: hsla(0, 0%, 0%, 0);
       }
 
       .item:hover {
@@ -81,8 +81,8 @@
 
       .item.w2 { width:   80px; background: #9C0; }
       .item.h2 { height:  80px; background: #0C9; }
-      .item.h4 { height: 260px; background: #C90; }
-      .item.w4 { width:  460px; background: #90C; }
+      .item.h4 { height: 240px; background: #C90; }
+      .item.w4 { width:  480px; background: #90C; }
   	  .item.h6 { height: 390px; background: #C90; }
       .item.w6 { width:  700px; background: #90C; }
 
@@ -156,8 +156,8 @@
       function magic() {
 
               var $container = $('.packery').packery({
-                  columnWidth: 0,
-                  rowHeight: 0
+                  columnWidth: 80,
+                  rowHeight: 80
               });
               // get item elements, jQuery-ify them
               var $itemElems = $container.find('.item');
@@ -231,6 +231,9 @@
                   loadStoredElements();
 
                   }
+				else if (recent_city == charts_number){
+								
+				}
           }
               var $container = $('.packery').packery();
 
@@ -293,8 +296,9 @@
            }
 
           watch(LastElement.id);
-		  console.log(my_cities[recent_city]);
+		  console.log(my_cities[recent_city]);		 
           socket.emit("getcity", my_cities[recent_city]);
+		   
       }
 
           function refreshing()
@@ -379,6 +383,7 @@
 		var $container = $('.packery').packery();
 		$container.packery( 'remove', this.parentNode );
 		$container.packery();
+		socket.emit("delete", {id:dashboardid,  elemid: this.parentNode.id});
 		/*if (my_cities.length!=0){
 			for(i = 0; i<my_cities.length; i++)
 			{
@@ -413,8 +418,8 @@
           var heightClass = '80px';
 		  }
 		  else if($("#sizes option:selected").text()=="Közepes"){
-          var widthClass = "460px";
-          var heightClass = "260px";
+          var widthClass = "480px";
+          var heightClass = "240px";
 		  }
 		  else if($("#sizes option:selected").text()=="Nagy") {
           var widthClass = "700px";
@@ -429,11 +434,8 @@
           height: heightClass
         };
       chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ))
-	  var aTag = document.createElement('a');
-	  aTag.onclick = removeItem;
-	  aTag.innerHTML = "";
 	  
-	  actualElement = document.getElementById('linechart_material_'+recent_city );
+		modifyAfterChartDraw();
 	  
       recent_city++;
 
@@ -445,6 +447,10 @@
 
 
       callback();
+	  	  var aTag = document.createElement('a');
+	  aTag.onclick = removeItem;
+	  aTag.innerHTML = "";
+	   actualElement = document.getElementById(LastElement.id );
 	  
 	  actualElement.appendChild(aTag);
 
@@ -493,6 +499,19 @@
   }
   return f;
   }
+  
+  
+  
+  	  function modifyAfterChartDraw() {
+	  if(my_cities.length!=0){
+	 
+	// LastElement.id = my_cities[recent_city].elemid;					//beállítom hogy az adott elem ID-ja megegyezzen a szerveren tárolt elemID-val (törlés miatt elcsúszhatott volna)
+	  
+		}
+	  
+	 
+	  
+	  }
 
 
 
