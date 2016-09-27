@@ -14,6 +14,7 @@ var temperatures = [];
 var dashboards = {};
 var dash_id;
 var AppId = "fd4d21cfaa35d69abf9dfd00a761cb65";
+var currentDashElements = {};
 
 
 // Using the .html extension instead of
@@ -65,10 +66,10 @@ app.get('/dash/:id', function (req, res) {
 		dashboards[req.params.id]=new Array();
 		choice=dashboards[req.params.id];
 	}
-	//console.log(dashboards);
+	console.log(req.params.id);
 
 res.render("socket",{
-	dashboardid:req.params.id, mydashboard: JSON.stringify(choice)
+	dashboardid:req.params.id, mydashboard: JSON.stringify(choice), currentDashElements:JSON.stringify(dashboards[req.params.id])
 	});
  // res.sendfile(__dirname + '/views/socket.html');;
 });
@@ -186,6 +187,7 @@ io.sockets.on('connection', function (socket) {
 			obj.sizestring = data.size;
 
 			dashboards[data.id].push(obj);
+			console.log('dash');
 			console.log(dashboards);
 			
 			//console.log(dashboards[data.id].length);

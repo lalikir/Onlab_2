@@ -6,7 +6,7 @@
       <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
       <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		
-			<script> var dashboardid=<%= dashboardid %>;var my_cities=<%- mydashboard %>; </script>
+			<script> var dashboardid=<%= dashboardid %>;var my_cities=<%- mydashboard %>;  var myElements = <%- currentDashElements %>; </script>
   <!--	
   <script src="http://code.highcharts.com/highcharts.js"></script>
   -->
@@ -226,9 +226,36 @@
       }
     }
   }
+  
+/*
+function setRecentCity(){
+	var splittedItemName = myElements[myElements.length-1].elemid.split('_');
+	var lastIndexOfElements = splittedItemName[splittedItemName.length-1];
+	if(my_cities.length!=0){
+		charts_number = lastIndexOfElements;
+        if(recent_city<charts_number){
+			loadStoredElements();
+		}
+		else if (recent_city == charts_number){
+					moveR();
+		}
+	} 
+}
+*/
+  
+  
+			/**
+			*
+			*
+			*oldal betöltésekor hajtódik végre
+			*
+			**/
           $(document).ready(function() {
-              refreshing();
-
+              refreshing(); 
+			  var mydata = new Object();
+			  
+			  
+			  console.log(myElements[myElements.length-1].elemid.split('_'));
               if(my_cities.length!=0){
               charts_number = my_cities.length;
               if(recent_city<charts_number){
