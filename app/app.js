@@ -6,6 +6,7 @@ var io = require('socket.io').listen(server);
 var fs = require('fs');
 var request = require("request");
 var path = require('path');
+var async = require('async');
 var parsedJSON = require('./city.json');		//városok és ID-k vannak benne
 var JSONstring;									//a kiválasztott városról lekérdezett adatok vannak benne
 var clients = [];
@@ -15,6 +16,8 @@ var dashboards = {};
 var dash_id;
 var AppId = "fd4d21cfaa35d69abf9dfd00a761cb65";
 var currentDashElements = {};
+var allCitiesData = {}
+var currentUsedCities = {};
 
 
 // Using the .html extension instead of
@@ -83,12 +86,126 @@ res.render("socket",{
   }
 }
 
+/**********************************************
+ * 											***
+ ********** FUNCTION DEFINITIONS **************
+ *											***
+ **********************************************/
+
+
+function getDataFromServer(socket, param){
+
+	//search city ID in city.json
+	console.log('fut')
+	if(typeof param.cityname === 'undefined'){
+		for(var i=0; i<parsedJSON.length; i++){
+			if (parsedJSON[i].name == param)
+			{
+//					console.log(parsedJSON[i]._id);
+				city_id = parsedJSON[i]._id
+			}
+//				else 	console.log("nincs");
+		}
+	}
+	else{
+		for(var i=0; i<parsedJSON.length; i++){
+			if (parsedJSON[i].name == param.cityname)
+			{
+//					console.log(parsedJSON[i]._id);
+				city_id = parsedJSON[i]._id
+			}
+//				else 	console.log("nincs");
+		}
+
+	}
+//		dashboards[data.dashboardid]=data;
+
+	//-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
+
+	var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
+
+	console.log(url);
+
+
+	request({
+		url: url,
+		json: true
+	}, function (error, response, body) {
 
 
 
-function WaitResponse() {
-	
+		if (!error && response.statusCode === 200) {
+
+
+			var t = new Date( body.list[0].dt*1000 );
+//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
+
+
+			// Print the json response
+			JSONstring = JSON.stringify(body);
+
+			//console.log(JSONstring);
+
+			socket.emit("buildchart", JSONstring);
+		}
+
+	})
+	return;
 }
+
+
+async.eachSeries(parsedJSON, function(city,nextCity){
+	async.series([
+			function (next) {
+				city_id = city._id;
+				next();
+			},
+			function (next) {
+				var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
+
+				console.log(url);
+
+
+				request({
+					url: url,
+					json: true
+				}, function (error, response, body) {
+
+
+
+
+
+					if (!error && response.statusCode === 200) {
+
+
+						var t = new Date( body.list[0].dt*1000 );
+						//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
+
+
+						// Print the json response
+						JSONstring = JSON.stringify(body);
+
+						/*
+						 ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
+						 */
+						//socket.emit("buildchart", JSONstring);
+
+						allCitiesData[city.name] = body;
+												
+						next();
+					}
+				})
+			}
+		] ,nextCity);
+}, function (err) { if (err) {console.log(err); } else { console.log (allCitiesData)}}
+
+);
+
+/**********************************************
+ * 											***
+ ********** MANAGE WEBSOCKETS	 **************
+ *											***
+ **********************************************/
 
 
 io.sockets.on('connection', function (socket) {
@@ -103,98 +220,43 @@ io.sockets.on('connection', function (socket) {
 	/****** ha csak az adott socketnek szeretnem:
 	socket.emit('info', { msg: Math.floor((Math.random() * 100) + 1 )});
 	*******/
-	
+
+	//when user pushed the "küld" button
+	socket.on('newcity', function(data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
+	{
+		//socket.emit('torefresh', { msg: "reggeli"});
+		//console.log(data);
+		//console.log("get");
+		getCitydata(socket, data);
+	});
+
+	//when the dashboard reload
+
 	socket.on('getcity', function(data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______ 
 	{
 		//socket.emit('torefresh', { msg: "reggeli"});
-		console.log(data);
-		console.log("get");
-		if(typeof data.cityname === 'undefined'){
-					for(var i=0; i<parsedJSON.length; i++){
-			if (parsedJSON[i].name == data)
-				{
-//					console.log(parsedJSON[i]._id);
-					city_id = parsedJSON[i]._id
-				}
-//				else 	console.log("nincs");		
-		}
-			}
-			else{
-				for(var i=0; i<parsedJSON.length; i++){
-				if (parsedJSON[i].name == data.cityname)
-					{
-//					console.log(parsedJSON[i]._id);
-						city_id = parsedJSON[i]._id
-					}
-//				else 	console.log("nincs");		
-				}
-				
-			}
-//		dashboards[data.dashboardid]=data;
-
-		
-		
-		
-
-		//-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
-
-		
-		
-		
-		var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
-
-
-
-		request({
-			url: url,
-			json: true
-		}, function (error, response, body) {
-
-
-
-			if (!error && response.statusCode === 200) {
-			
-			
-			var t = new Date( body.list[0].dt*1000 );
-//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
-
-				
-		        // Print the json response
-			   JSONstring = JSON.stringify(body);
-			   
-			   //console.log(JSONstring);
-
-				socket.emit("buildchart", JSONstring);
-			}
-
-		})
-					
-
-									
-
-
-		
+		//console.log(data);
+		//console.log("get");
+		getCityData(socket, data);
 	});
 	
-		socket.on('dash', function(data){
+	socket.on('dash', function(data){
 
-			var obj = {};
-			obj.cityname = data.cityname;
-			obj.elemid = data.elemid;
-			obj.top = data.top;
-			obj.left = data.left;
-			obj.wrapper_height  = 	0;
-			obj.sizestring = data.size;
+		var obj = {};
+		obj.cityname = data.cityname;
+		obj.elemid = data.elemid;
+		obj.top = data.top;
+		obj.left = data.left;
+		obj.wrapper_height  = 	0;
+		obj.sizestring = data.size;
 
-			dashboards[data.id].push(obj);
-			console.log('dash');
-			console.log(dashboards);
-			
-			//console.log(dashboards[data.id].length);
+		dashboards[data.id].push(obj);
+		console.log('dash');
+		console.log(dashboards);
 
-			
-			
-			});
+		//console.log(dashboards[data.id].length);
+
+	});
 
 	socket.on("positions", function(data){
 			

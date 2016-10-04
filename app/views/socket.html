@@ -272,8 +272,9 @@ function setRecentCity(){
               $("#kuld").on('click', function() {
                   LastElement=addNewDataElement();
                   watch(LastElement.id);
-              socket.emit("getcity", $("#city_list option:selected").text());
-              socket.emit("dash", {
+                  socket.emit('newcity', $("#city_list option:selected").text())
+				  //socket.emit("getcity", $("#city_list option:selected").text());
+				  socket.emit("dash", {
                   id : dashboardid,
                   cityname : $("#city_list option:selected").text(),
                   elemid: LastElement.id,
@@ -282,8 +283,8 @@ function setRecentCity(){
 				  size: ($("#sizes option:selected").text())
 				  //width: LastElement.childNodes[0].style.width,
 				  //height: LastElement.childNodes[0].style.height
-              });
-          });
+				});
+				});
           });
 
       /*
