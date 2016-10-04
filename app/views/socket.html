@@ -329,8 +329,8 @@ function setRecentCity(){
            }
 
           watch(LastElement.id);
-		  console.log(my_cities[recent_city]);		 
-          socket.emit("getcity", my_cities[recent_city]);
+		  console.log(my_cities[recent_city].cityname);
+          socket.emit("getcity", my_cities[recent_city].cityname);
 		   
       }
 
@@ -338,6 +338,7 @@ function setRecentCity(){
           {
           socket.on("buildchart", function (data){
               var city_json=JSON.parse(data);
+              console.log(city_json)
               //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
               createchart(city_json, function() { chart.draw(chartdata, options);});
               cities.push(city_json.city.name);

@@ -153,53 +153,66 @@ function getDataFromServer(socket, param){
 	return;
 }
 
-
-async.eachSeries(parsedJSON, function(city,nextCity){
-	async.series([
-			function (next) {
-				city_id = city._id;
-				next();
-			},
-			function (next) {
-				var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
-
-				console.log(url);
+/***
+ *
+ * Get ALL data from server
+ * periodically
+ *
+ ***/
 
 
-				request({
-					url: url,
-					json: true
-				}, function (error, response, body) {
-
-
-
-
-
-					if (!error && response.statusCode === 200) {
-
-
-						var t = new Date( body.list[0].dt*1000 );
-						//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
-
-
-						// Print the json response
-						JSONstring = JSON.stringify(body);
-
-						/*
-						 ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
-						 */
-						//socket.emit("buildchart", JSONstring);
-
-						allCitiesData[city.name] = body;
-												
+var getData = setInterval(function() {
+	async.eachSeries(parsedJSON, function (city, nextCity) {
+				async.series([
+					function (next) {
+						city_id = city._id;
 						next();
-					}
-				})
-			}
-		] ,nextCity);
-}, function (err) { if (err) {console.log(err); } else { console.log (allCitiesData)}}
+					},
+					function (next) {
+						var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
 
-);
+						//console.log(url);
+
+
+						request({
+							url: url,
+							json: true
+						}, function (error, response, body) {
+
+
+							if (!error && response.statusCode === 200) {
+
+
+								var t = new Date(body.list[0].dt * 1000);
+								//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
+
+
+								// Print the json response
+								JSONstring = JSON.stringify(body);
+
+								/*
+								 ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
+								 */
+								//socket.emit("buildchart", JSONstring);
+
+								allCitiesData[city.name] = body;
+
+								next();
+							}
+						})
+					}
+				], nextCity);
+			}, function (err) {
+				if (err) {
+					console.log(err);
+				} else {
+					//console.log (allCitiesData)
+				}
+			}
+	);
+}, 5000);
+
+getData;
 
 /**********************************************
  * 											***
@@ -227,7 +240,8 @@ io.sockets.on('connection', function (socket) {
 		//socket.emit('torefresh', { msg: "reggeli"});
 		//console.log(data);
 		//console.log("get");
-		getCitydata(socket, data);
+		console.log(allCitiesData[data]);
+		socket.emit("buildchart",JSON.stringify(allCitiesData[data]));
 	});
 
 	//when the dashboard reload
@@ -237,7 +251,7 @@ io.sockets.on('connection', function (socket) {
 		//socket.emit('torefresh', { msg: "reggeli"});
 		//console.log(data);
 		//console.log("get");
-		getCityData(socket, data);
+		socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
 	});
 	
 	socket.on('dash', function(data){
