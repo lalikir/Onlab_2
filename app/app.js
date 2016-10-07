@@ -1,4 +1,3 @@
-
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app).listen(3000);
@@ -26,131 +25,126 @@ app.engine('.html', require('ejs').__express);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
- 
 // Set the folder where the pages are kept
 app.set('views', __dirname + '/views');
- 
+
 // This avoids having to provide the 
 // extension to res.render()
 app.set('view engine', 'html');
 
 
-var city_id; 
+var city_id;
 var ujvaltozo;  //
 
 app.get('/', function (req, res) {
-	dash_id = Math.floor((Math.random() * 100000000) + 1);
+    dash_id = Math.floor((Math.random() * 100000000) + 1);
 //	res.send({dashboardid: dash_id});
-	app.use('/img',express.static(path.join(__dirname, 'public/assets/img')));
-	res.redirect('/dash/'+ dash_id);
+    app.use('/img', express.static(path.join(__dirname, 'public/assets/img')));
+    res.redirect('/dash/' + dash_id);
 
 });
 
 app.get('/assets/img/:file', function (req, res) {
-	
+
 //	res.send({dashboardid: dash_id});
-	app.use(express.static(path.join(__dirname, 'public/assets/img')));
+    app.use(express.static(path.join(__dirname, 'public/assets/img')));
 
 });
 
 app.get('/dash/:id', function (req, res) {
-	console.log("dash"+req.params.id);
+    console.log("dash" + req.params.id);
 
-	app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'public')));
 
 
-
-	if (dashboards[req.params.id])
-    {
-        var choice=dashboards[req.params.id];
+    if (dashboards[req.params.id]) {
+        var choice = dashboards[req.params.id];
 //		console.log(req.params.id);
-    }else{
-		dashboards[req.params.id]=new Array();
-		choice=dashboards[req.params.id];
-	}
-	console.log(req.params.id);
+    } else {
+        dashboards[req.params.id] = new Array();
+        choice = dashboards[req.params.id];
+    }
+    console.log(req.params.id);
 
-res.render("socket",{
-	dashboardid:req.params.id, mydashboard: JSON.stringify(choice), currentDashElements:JSON.stringify(dashboards[req.params.id])
-	});
- // res.sendfile(__dirname + '/views/socket.html');;
+    res.render("socket", {
+        dashboardid: req.params.id,
+        mydashboard: JSON.stringify(choice),
+        currentDashElements: JSON.stringify(dashboards[req.params.id])
+    });
+    // res.sendfile(__dirname + '/views/socket.html');;
 });
 
-	function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds) {
+            break;
+        }
     }
-  }
 }
 
 /**********************************************
- * 											***
+ *                                            ***
  ********** FUNCTION DEFINITIONS **************
- *											***
+ *                                            ***
  **********************************************/
 
 
-function getDataFromServer(socket, param){
+function getDataFromServer(socket, param) {
 
-	//search city ID in city.json
-	console.log('fut')
-	if(typeof param.cityname === 'undefined'){
-		for(var i=0; i<parsedJSON.length; i++){
-			if (parsedJSON[i].name == param)
-			{
+    //search city ID in city.json
+    console.log('fut')
+    if (typeof param.cityname === 'undefined') {
+        for (var i = 0; i < parsedJSON.length; i++) {
+            if (parsedJSON[i].name == param) {
 //					console.log(parsedJSON[i]._id);
-				city_id = parsedJSON[i]._id
-			}
+                city_id = parsedJSON[i]._id
+            }
 //				else 	console.log("nincs");
-		}
-	}
-	else{
-		for(var i=0; i<parsedJSON.length; i++){
-			if (parsedJSON[i].name == param.cityname)
-			{
+        }
+    }
+    else {
+        for (var i = 0; i < parsedJSON.length; i++) {
+            if (parsedJSON[i].name == param.cityname) {
 //					console.log(parsedJSON[i]._id);
-				city_id = parsedJSON[i]._id
-			}
+                city_id = parsedJSON[i]._id
+            }
 //				else 	console.log("nincs");
-		}
+        }
 
-	}
+    }
 //		dashboards[data.dashboardid]=data;
 
-	//-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
+    //-------------végignézi a tárolt városok listáját, és a megfelelő város id mezőjét kiválasztja-----------
 
-	var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
+    var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
 
-	console.log(url);
-
-
-	request({
-		url: url,
-		json: true
-	}, function (error, response, body) {
+    console.log(url);
 
 
+    request({
+        url: url,
+        json: true
+    }, function (error, response, body) {
 
-		if (!error && response.statusCode === 200) {
+
+        if (!error && response.statusCode === 200) {
 
 
-			var t = new Date( body.list[0].dt*1000 );
+            var t = new Date(body.list[0].dt * 1000);
 //			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
 
 
-			// Print the json response
-			JSONstring = JSON.stringify(body);
+            // Print the json response
+            JSONstring = JSON.stringify(body);
 
-			//console.log(JSONstring);
+            //console.log(JSONstring);
 
-			socket.emit("buildchart", JSONstring);
-		}
+            socket.emit("buildchart", JSONstring);
+        }
 
-	})
-	return;
+    })
+    return;
 }
 
 /***
@@ -161,202 +155,184 @@ function getDataFromServer(socket, param){
  ***/
 
 
-var getData = setInterval(function() {
-	async.eachSeries(parsedJSON, function (city, nextCity) {
-				async.series([
-					function (next) {
-						city_id = city._id;
-						next();
-					},
-					function (next) {
-						var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
+var getData = setInterval(function () {
+    async.eachSeries(parsedJSON, function (city, nextCity) {
+            async.series([
+                function (next) {
+                    city_id = city._id;
+                    next();
+                },
+                function (next) {
+                    var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
 
-						//console.log(url);
-
-
-						request({
-							url: url,
-							json: true
-						}, function (error, response, body) {
+                    //console.log(url);
 
 
-							if (!error && response.statusCode === 200) {
+                    request({
+                        url: url,
+                        json: true
+                    }, function (error, response, body) {
 
 
-								var t = new Date(body.list[0].dt * 1000);
-								//			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
+                        if (!error && response.statusCode === 200) {
 
 
-								// Print the json response
-								JSONstring = JSON.stringify(body);
+                            var t = new Date(body.list[0].dt * 1000);
+                            //			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
 
-								/*
-								 ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
-								 */
-								//socket.emit("buildchart", JSONstring);
 
-								allCitiesData[city.name] = body;
+                            // Print the json response
+                            JSONstring = JSON.stringify(body);
 
-								next();
-							}
-						})
-					}
-				], nextCity);
-			}, function (err) {
-				if (err) {
-					console.log(err);
-				} else {
-					//console.log (allCitiesData)
-				}
-			}
-	);
+                            /*
+                             ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
+                             */
+                            //socket.emit("buildchart", JSONstring);
+
+                            allCitiesData[city.name] = body;
+
+
+                            /*
+                            Itt minden egyes lekérdezéskor beküldjük az adatot (jelenleg ugyanabba) a szobába.
+                             */
+                            io.to('Budapest I. keruelet').emit('newdata', JSONstring);
+
+
+                            next();
+                        }
+                    })
+                }
+            ], nextCity);
+        }, function (err) {
+            if (err) {
+                console.log(err);
+            } else {
+                //console.log (allCitiesData)
+            }
+        }
+    );
 }, 5000);
 
 getData;
 
 /**********************************************
- * 											***
- ********** MANAGE WEBSOCKETS	 **************
- *											***
+ *                                            ***
+ ********** MANAGE WEBSOCKETS     **************
+ *                                            ***
  **********************************************/
 
 
 io.sockets.on('connection', function (socket) {
-	
-	
-	clients.push(socket);
-	//---------------aktív kapcsolatok karbantartásához--------------
-	console.log('Connected user is:', clients.length);
-	io.sockets.emit('info', parsedJSON);  //------------ezzel tudom az összes socketnek ugyanazt kiküldeni------------
-	
-	
-	/****** ha csak az adott socketnek szeretnem:
-	socket.emit('info', { msg: Math.floor((Math.random() * 100) + 1 )});
-	*******/
 
-	//when user pushed the "küld" button
-	socket.on('newcity', function(data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
-	{
-		//socket.emit('torefresh', { msg: "reggeli"});
-		//console.log(data);
-		//console.log("get");
-		console.log(allCitiesData[data]);
-		socket.emit("buildchart",JSON.stringify(allCitiesData[data]));
-	});
 
-	//when the dashboard reload
+    clients.push(socket);
+    //---------------aktív kapcsolatok karbantartásához--------------
+    console.log('Connected user is:', clients.length);
+    io.sockets.emit('info', parsedJSON);  //------------ezzel tudom az összes socketnek ugyanazt kiküldeni------------
 
-	socket.on('getcity', function(data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______ 
-	{
-		//socket.emit('torefresh', { msg: "reggeli"});
-		//console.log(data);
-		//console.log("get");
-		socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
-	});
-	
-	socket.on('dash', function(data){
 
-		var obj = {};
-		obj.cityname = data.cityname;
-		obj.elemid = data.elemid;
-		obj.top = data.top;
-		obj.left = data.left;
-		obj.wrapper_height  = 	0;
-		obj.sizestring = data.size;
+    /****** ha csak az adott socketnek szeretnem:
+     socket.emit('info', { msg: Math.floor((Math.random() * 100) + 1 )});
+     *******/
 
-		dashboards[data.id].push(obj);
-		console.log('dash');
-		console.log(dashboards);
+        //when user pushed the "küld" button
+    socket.on('newcity', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
+    {
+        //Hozzáadjuk a városhoz tartozó szobához a klienst
+        console.log(data);
+        socket.join(data);
+        console.log(allCitiesData[data]);
+        socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
+    });
 
-		//console.log(dashboards[data.id].length);
+    //when the dashboard reload
 
-	});
+    socket.on('getcitynewdata', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
+    {
 
-	socket.on("positions", function(data){
-			
-			//console.log(data[0].id);
-			//console.log(data.length);
-			//console.log(dashboards[data.id].length);
+        //socket.emit('torefresh', { msg: "reggeli"});
+        //console.log(data);
+        //console.log("get");
+        socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
+    });
 
-		
+    socket.on('dash', function (data) {
 
-		//console.log(pos.elemid); 
-		console.log("elemek:"); 
-		console.log(data);
-		console.log(dashboards[data[0].id].length);
-		console.log(dashboards[data[0].id]);
-		
- 		for (i=0; i<dashboards[data[0].id].length; i++){
-			if(dashboards[data[0].id][i].elemid == data[i].elemid){
-				dashboards[data[0].id][i].top = data[i].top;
-				dashboards[data[0].id][i].left = data[i].left;
-				dashboards[data[0].id][i].wrapper_height = data[i].charts;
-				
-			}
-		
-			
-		/*	if(dashboards[i][0] == data[0].id)
-			{
-				console.log("izeeeeeeeeeeeeeeee" + dashboards[i]);
-			}
-			*/
-			
-			
-				
-				//var pos = JSON.parse(data);
-				//console.log(pos[1].elemid);
-				
-					
-					
-			}
-		}
-	)
-	
-		socket.on("delete", function(data){
-			
-			//console.log(data[0].id);
-			//console.log(data.length);
-			//console.log(dashboards[data.id].length);
+        var obj = {};
+        obj.cityname = data.cityname;
+        obj.elemid = data.elemid;
+        obj.top = data.top;
+        obj.left = data.left;
+        obj.wrapper_height = 0;
+        obj.sizestring = data.size;
 
-		
+        dashboards[data.id].push(obj);
+        console.log('dash');
+        console.log(dashboards);
 
-		//console.log(pos.elemid); 
-		console.log("delete:");
-		console.log(data);
-		for (i=0; i<dashboards[data.id].length; i++){
-			console.log("szaml:" + i);
-			if(dashboards[data.id][i].elemid == data.elemid){
-				console.log(dashboards[data.id][i].elemid);
-				console.log(dashboards[data.id][i]);
-				dashboards[data.id].splice([i], 1); 
-				//console.log(dashboards[data.id][i]);
+        //console.log(dashboards[data.id].length);
 
-				
-			}
-			
+    });
 
-					
-					
-			}
-		}
-	)
+    socket.on("positions", function (data) {
 
-	
+            //console.log(data[0].id);
+            //console.log(data.length);
+            //console.log(dashboards[data.id].length);
 
-	
-	
-	  socket.on('disconnect', function () {
-	  	for (i=0; i<clients.length; i++) {
-		if(clients[i].id == socket.id) 
-			{
-			clients.splice(i,1);				//-----------------kapcsolatot bontott socket törlése a listából--------------------
-			}
-		}
-		io.emit('user disconnected');
-		console.log("disc")
 
-	  });
-	
+            //console.log(pos.elemid);
+            console.log("elemek:");
+            console.log(data);
+            console.log(dashboards[data[0].id].length);
+            console.log(dashboards[data[0].id]);
+
+            for (i = 0; i < dashboards[data[0].id].length; i++) {
+                if (dashboards[data[0].id][i].elemid == data[i].elemid) {
+                    dashboards[data[0].id][i].top = data[i].top;
+                    dashboards[data[0].id][i].left = data[i].left;
+                    dashboards[data[0].id][i].wrapper_height = data[i].charts;
+
+                }
+
+            }
+        }
+    )
+
+    socket.on("delete", function (data) {
+
+            //console.log(data[0].id);
+            //console.log(data.length);
+            //console.log(dashboards[data.id].length);
+
+
+            //console.log(pos.elemid);
+            console.log("delete:");
+            console.log(data);
+            for (i = 0; i < dashboards[data.id].length; i++) {
+                console.log("szaml:" + i);
+                if (dashboards[data.id][i].elemid == data.elemid) {
+                    console.log(dashboards[data.id][i].elemid);
+                    console.log(dashboards[data.id][i]);
+                    dashboards[data.id].splice([i], 1);
+                    //console.log(dashboards[data.id][i]);
+
+                }
+
+            }
+        }
+    )
+
+    socket.on('disconnect', function () {
+        for (i = 0; i < clients.length; i++) {
+            if (clients[i].id == socket.id) {
+                clients.splice(i, 1);				//-----------------kapcsolatot bontott socket törlése a listából--------------------
+            }
+        }
+        io.emit('user disconnected');
+        console.log("disc")
+
+    });
 
 
 });

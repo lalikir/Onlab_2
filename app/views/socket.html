@@ -226,7 +226,50 @@
       }
     }
   }
-  
+
+      /***
+       *
+       *    Amennyiben új elemet adunk a dashboardhoz, ezt az elemet hozzáadjuk a kiválasztott adathoz
+       *    tartozó szobához
+       */
+
+      function subscribeRoom() {
+          console.log('itt');
+          socket.on('newdata', function(response){
+              console.log('Incoming message:');
+              buildChart(response);
+          })
+      }
+
+      /***
+       *
+       *    Manuálisan lehet elindítani a grafikon készítését.
+       *    @ data: a teljes JSON, amit a szerver a távoli kiszolgálótól kap
+       */
+
+
+      function buildChart(data){
+
+          var city_json=JSON.parse(data);
+          console.log(city_json)
+          //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
+          createchart(city_json, function() { chart.draw(chartdata, options);});
+          cities.push(city_json.city.name);
+          if(recent_city<charts_number) {
+              loadStoredElements();
+          }
+          else{
+              subscribeRoom();
+              magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
+              setTimeout(modifyPositions, 500);
+
+
+          }
+          console.log("frissult");
+      }
+
+
+
 /*
 function setRecentCity(){
 	var splittedItemName = myElements[myElements.length-1].elemid.split('_');
@@ -251,7 +294,7 @@ function setRecentCity(){
 			*
 			**/
           $(document).ready(function() {
-              refreshing(); 
+              refreshing();
 			  var mydata = new Object();
 			  
 			  
@@ -330,29 +373,15 @@ function setRecentCity(){
 
           watch(LastElement.id);
 		  console.log(my_cities[recent_city].cityname);
-          socket.emit("getcity", my_cities[recent_city].cityname);
-		   
+          socket.emit("getcitynewdata", my_cities[recent_city].cityname);
+
       }
 
           function refreshing()
           {
           socket.on("buildchart", function (data){
-              var city_json=JSON.parse(data);
-              console.log(city_json)
-              //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
-              createchart(city_json, function() { chart.draw(chartdata, options);});
-              cities.push(city_json.city.name);
-              if(recent_city<charts_number) {
-                  loadStoredElements();
-              }
-              else{
-                  magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
-					setTimeout(modifyPositions, 500);
-					
-				
-              }
-              console.log("frissult");
-              });
+              buildChart(data);
+          });
 
   }
 
