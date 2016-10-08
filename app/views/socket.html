@@ -39,7 +39,12 @@
           margin-bottom: 20px;
       }
 
-      /********   Csempéket kezelő kódrészlet  **********/
+      /****
+        *
+        *   Csempéket kezelő kódrészlet
+        *
+        ********/
+
 
       {
           -webkit-box-sizing: border-box;
@@ -195,7 +200,9 @@
 			}
           var elemtype = "linechart";
           elem.id = "linechart_material_" + recent_city;
-          elem.className = elemtype + ' ' + 'item ' + widthClass + ' ' + heightClass;
+          elem.className = $("#city_list option:selected").text() + '_' +  ' ' + $("#sizes option:selected").text() + ' ' +
+                  elemtype + ' ' + 'item ' + widthClass + ' ' + heightClass ;
+
           return elem;
       }
 
@@ -237,7 +244,15 @@
       function subscribeRoom() {
           console.log('itt');
           socket.on('newdata', function(response){
+
+              console.log(response);
+
               console.log('Incoming message:');
+
+              $('.packery').children().each(function () {
+                  console.log(this.className.split('_')[0]);
+              });
+
               buildChart(response);
           })
       }
@@ -252,9 +267,11 @@
       function buildChart(data){
 
           var city_json=JSON.parse(data);
-          console.log(city_json)
+          console.log($('.packery').children()[0].className.split('_')[0]);
+          var temp = $('.packery').children()[0].className.split('_')[0];
+          //console.log(city_json)
           //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
-          createchart(city_json, function() { chart.draw(chartdata, options);});
+          createchart(city_json,  function() { chart.draw(chartdata, options);});
           cities.push(city_json.city.name);
           if(recent_city<charts_number) {
               loadStoredElements();
@@ -472,7 +489,6 @@ function setRecentCity(){
       /********************** Chart inicializálása**************************/
 
       function createchart(chartJSON, callback) {
-  //	recent_city++
       chartdata = new google.visualization.DataTable();
       chartdata.addColumn('string', 'Day');
       chartdata.addColumn('number', 'Napi átlag C°');
@@ -497,14 +513,20 @@ function setRecentCity(){
           width: widthClass,
           height: heightClass
         };
-      chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ))
-	  
-		modifyAfterChartDraw();
-	  
-      recent_city++;
+        console.log(recent_city);
+
+        console.log(document.getElementById('linechart_material_'+ recent_city ));
+      chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ));
+        recent_city++
+
+          modifyAfterChartDraw();
 
 
-      var rows = createArray (chartJSON);
+          var rows = createArray (chartJSON);
+          if(recent_city<my_cities.length){
+
+              console.log('ajaj');
+          }
 
       chartdata.addRows(rows);
 	  
