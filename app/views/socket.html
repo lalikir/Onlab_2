@@ -175,10 +175,11 @@
       };
 
       function getItemElement() {
-        var elem = document.createElement('div');
-		//document.getElementById('sizes').value = my_cities[recent_city].sizestring;
 
-		//console.log("Getelement" + $("#sizes option:selected").text())
+          // Create new div element to store new data from server
+          var elem = document.createElement('div');
+          //Beállítjuk a létrehozandó elem méretét.
+          //w*, h* értékekhez tartozó méretek (px-ben) már korábban megadásra kerültek
 		
 			if($("#sizes option:selected").text()=="Kicsi"){
 				var widthClass = 'w2';
