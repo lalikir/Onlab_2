@@ -7,7 +7,7 @@
       <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		
 			<script> var dashboardid=<%= dashboardid %>;var my_cities=<%- mydashboard %>;  var myElements = <%- currentDashElements %>; </script>
-  <!--	
+  <!--
   <script src="http://code.highcharts.com/highcharts.js"></script>
   -->
    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -139,12 +139,6 @@
       </div>
 
 
-
-
-
-
-
-
       <script>
 
       var chart;
@@ -271,7 +265,7 @@
           var temp = $('.packery').children()[0].className.split('_')[0];
           //console.log(city_json)
           //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
-          createchart(city_json,  function() { chart.draw(chartdata, options);});
+          createchart(city_json,   function() { chart.draw(chartdata, options);});
           cities.push(city_json.city.name);
           if(recent_city<charts_number) {
               loadStoredElements();
@@ -286,25 +280,6 @@
           console.log("frissult");
       }
 
-
-
-/*
-function setRecentCity(){
-	var splittedItemName = myElements[myElements.length-1].elemid.split('_');
-	var lastIndexOfElements = splittedItemName[splittedItemName.length-1];
-	if(my_cities.length!=0){
-		charts_number = lastIndexOfElements;
-        if(recent_city<charts_number){
-			loadStoredElements();
-		}
-		else if (recent_city == charts_number){
-					moveR();
-		}
-	} 
-}
-*/
-  
-  
 			/**
 			*
 			*
@@ -319,6 +294,8 @@ function setRecentCity(){
 			  //console.log(myElements[myElements.length-1].elemid.split('_'));
               if(my_cities.length!=0){
               charts_number = my_cities.length;
+
+
               if(recent_city<charts_number){
 
                   loadStoredElements();
@@ -348,13 +325,6 @@ function setRecentCity(){
 				});
           });
 
-      /*
-       id : dashboardid,
-       cityname : $("#city_list option:selected").text(),
-       elemid: LastElement.id,
-       top: LastElement.style.top,
-       left: LastElement.style.left
-      */
 
           var socket = io();
           socket.on('info', function (data) {
@@ -465,30 +435,10 @@ function setRecentCity(){
 		$container.packery( 'remove', this.parentNode );
 		$container.packery();
 		socket.emit("delete", {id:dashboardid,  elemid: this.parentNode.id});
-		/*if (my_cities.length!=0){
-			for(i = 0; i<my_cities.length; i++)
-			{
-				if(my_cities[i].elemid == this.parentNode.id){
-					socket.emit("delete", {id:dashboardid,  elemid: my_cities[i].elemid});
-					my_cities.splice(i,1);
-					
-					
-				}
-			}
-			
-			moveR();
-		}*/
-		
-	}
-	  
-
-
-
-
 
       /********************** Chart inicializálása**************************/
 
-      function createchart(chartJSON, callback) {
+      function createchart(chartJSON, DOMelement, callback) {
       chartdata = new google.visualization.DataTable();
       chartdata.addColumn('string', 'Day');
       chartdata.addColumn('number', 'Napi átlag C°');
@@ -515,9 +465,8 @@ function setRecentCity(){
         };
         console.log(recent_city);
 
-        console.log(document.getElementById('linechart_material_'+ recent_city ));
-      chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ));
-        recent_city++
+      chart = new google.charts.Line(DOMElement);
+        //recent_city++
 
           modifyAfterChartDraw();
 
