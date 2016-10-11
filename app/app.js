@@ -195,7 +195,8 @@ var getData = setInterval(function () {
                             /*
                             Itt minden egyes lekérdezéskor beküldjük az adatot (jelenleg ugyanabba) a szobába.
                              */
-                            io.to(city.name).emit('newdata', JSONstring);
+                            io.to('Budapest I. keruelet').emit('newdata', JSONstring);
+
 
                             next();
                         }
