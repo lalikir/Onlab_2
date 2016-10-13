@@ -159,6 +159,111 @@
     var positionlist = [];
     var sizestring = "";
     var actualElement = {};
+    var loaded = 0;
+
+
+    /**
+     *
+     *
+     *oldal betöltésekor hajtódik végre
+     *
+     **/
+
+
+    $(document).ready(function() {
+
+        //subscribe "buildchart" event and set recent_city
+        setGlobalVariable();
+
+            //LastElement=addNewDataElement(elem.elemid);
+
+
+        var mydata = new Object();
+
+
+        //console.log(myElements[myElements.length-1].elemid.split('_'));
+        /*if(my_cities.length!=0){
+            charts_number = my_cities.length;
+            if(recent_city<charts_number){
+
+                loadStoredElements();
+            }
+            else if (recent_city == charts_number){
+                moveR();
+
+            }
+        }*/
+        var $container = $('.packery').packery();
+
+        $("#kuld").on('click', function() {
+            recent_city++;
+            citycntr = recent_city;
+            addNewDataElement('linechart_material_' + recent_city, function(element){
+                LastElement = element;
+                watch(LastElement.id);
+                socket.emit('newcity', $("#city_list option:selected").text())
+                //socket.emit("getcity", $("#city_list option:selected").text());
+                var newElement = {
+                    id : dashboardid,
+                    cityname : $("#city_list option:selected").text(),
+                    elemid: LastElement.id,
+                    top: LastElement.style.top,
+                    left: LastElement.style.left,
+                    size: ($("#sizes option:selected").text())
+                }
+                myElements.push(newElement);
+                socket.emit("dash", newElement);
+            });
+        });
+    });
+
+    function addNewDataElement(elemID, cb) {
+        var $container = $('.packery').packery();
+
+        var elems = [];
+
+        var elem = getItemElement(elemID);
+        elems.push(elem);
+
+        // append elements to container
+        $container.append(elems);
+        // add and lay out newly appended elements
+        $container.packery('appended', elems);
+        console.log("hozzaadva");
+
+        cb(elem);
+
+    }
+
+    function getItemElement(elemID) {
+
+        // Create new div element to store new data from server
+        var elem = document.createElement('div');
+        //Beállítjuk a létrehozandó elem méretét.
+        //w*, h* értékekhez tartozó méretek (px-ben) már korábban megadásra kerültek
+
+        if($("#sizes option:selected").text()=="Kicsi"){
+            var widthClass = 'w2';
+            var heightClass = 'h2';
+        }
+        else if($("#sizes option:selected").text()=="Közepes"){
+            var widthClass = 'w4';
+            var heightClass = 'h4';
+        }
+        else {
+            var widthClass = 'w6';
+            var heightClass = 'h6';
+        }
+        var elemtype = "linechart";
+        elem.id = elemID;
+        elem.className = $("#city_list option:selected").text() + '_' +  ' ' + $("#sizes option:selected").text() + ' ' +
+                elemtype + ' ' + 'item ' + widthClass + ' ' + heightClass ;
+
+        return elem;
+
+    }
+
+
 
 
 
@@ -180,49 +285,7 @@
         console.log("uzenet");
     };
 
-    function getItemElement() {
 
-        // Create new div element to store new data from server
-        var elem = document.createElement('div');
-        //Beállítjuk a létrehozandó elem méretét.
-        //w*, h* értékekhez tartozó méretek (px-ben) már korábban megadásra kerültek
-
-        if($("#sizes option:selected").text()=="Kicsi"){
-            var widthClass = 'w2';
-            var heightClass = 'h2';
-        }
-        else if($("#sizes option:selected").text()=="Közepes"){
-            var widthClass = 'w4';
-            var heightClass = 'h4';
-        }
-        else {
-            var widthClass = 'w6';
-            var heightClass = 'h6';
-        }
-        var elemtype = "linechart";
-        elem.id = "linechart_material_" + recent_city;
-        elem.className = $("#city_list option:selected").text() + '_' +  ' ' + $("#sizes option:selected").text() + ' ' +
-                elemtype + ' ' + 'item ' + widthClass + ' ' + heightClass ;
-
-        return elem;
-    }
-
-    function addNewDataElement() {
-        var $container = $('.packery').packery();
-        console.log("hozzaadva");
-
-        var elems = [];
-
-        var elem = getItemElement();
-        elems.push(elem);
-
-        // append elements to container
-        $container.append(elems);
-        // add and lay out newly appended elements
-        $container.packery('appended', elems);
-        return elem;
-
-    }
 
 
 
@@ -265,97 +328,41 @@
      */
 
 
-    function buildChart(data){
+    function buildChart(chartID, data){
 
         var city_json=JSON.parse(data);
-        console.log($('.packery').children()[0].className.split('_')[0]);
+        //console.log($('.packery').children()[0].className.split('_')[0]);
         var temp = $('.packery').children()[0].className.split('_')[0];
         //console.log(city_json)
         //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
-        createchart(city_json,  function() { chart.draw(chartdata, options);});
+        createchart(chartID, city_json,  function() { chart.draw(chartdata, options);});
         cities.push(city_json.city.name);
-        if(recent_city<charts_number) {
-            loadStoredElements();
+        sleep(500)
+
+        //!!!!!!!!!!!!!!EZMÉGKELL!!!!!!!!!!!!!!!!!!!!!!!
+
+/*
+       if(chartID!=myElements[myElements.length-1].elemid) {
+           console.log(chartID);
+           citycntr++;
+           loadStoredElements(citycntr);
         }
-        else{
+        else{*/
+        //setTimeout(function(){        loadStoredElements(citycntr);}, 2000);
+        if(chartID==myElements[myElements.length-1].elemid) {
             subscribeRoom();
             magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
             setTimeout(modifyPositions, 500);
-
-
         }
+/*
+
+        }*/
+
+
+
         console.log("frissult");
     }
 
-
-
-    /*
-     function setRecentCity(){
-     var splittedItemName = myElements[myElements.length-1].elemid.split('_');
-     var lastIndexOfElements = splittedItemName[splittedItemName.length-1];
-     if(my_cities.length!=0){
-     charts_number = lastIndexOfElements;
-     if(recent_city<charts_number){
-     loadStoredElements();
-     }
-     else if (recent_city == charts_number){
-     moveR();
-     }
-     }
-     }
-     */
-
-
-    /**
-     *
-     *
-     *oldal betöltésekor hajtódik végre
-     *
-     **/
-    $(document).ready(function() {
-        refreshing();
-        var mydata = new Object();
-
-
-        //console.log(myElements[myElements.length-1].elemid.split('_'));
-        if(my_cities.length!=0){
-            charts_number = my_cities.length;
-            if(recent_city<charts_number){
-
-                loadStoredElements();
-            }
-            else if (recent_city == charts_number){
-                moveR();
-
-            }
-        }
-        var $container = $('.packery').packery();
-
-        $("#kuld").on('click', function() {
-            LastElement=addNewDataElement();
-            watch(LastElement.id);
-            socket.emit('newcity', $("#city_list option:selected").text())
-            //socket.emit("getcity", $("#city_list option:selected").text());
-            socket.emit("dash", {
-                id : dashboardid,
-                cityname : $("#city_list option:selected").text(),
-                elemid: LastElement.id,
-                top: LastElement.style.top,
-                left: LastElement.style.left,
-                size: ($("#sizes option:selected").text())
-                //width: LastElement.childNodes[0].style.width,
-                //height: LastElement.childNodes[0].style.height
-            });
-        });
-    });
-
-    /*
-     id : dashboardid,
-     cityname : $("#city_list option:selected").text(),
-     elemid: LastElement.id,
-     top: LastElement.style.top,
-     left: LastElement.style.left
-     */
 
     var socket = io();
     socket.on('info', function (data) {
@@ -376,30 +383,33 @@
 
     //BETÖLTÉSKOR FELTÖLTI AZ OLDALT
 
-    function loadStoredElements(){
-        //$('#charts').append($('<div/>', { id: 'linechart_material_' + recent_city, 'class' : 'linechart item w4 h4'}));
-        document.getElementById('sizes').value = my_cities[recent_city].sizestring;
-        LastElement=addNewDataElement();
-        if (LastElement.id == my_cities[recent_city].elemid) {
-            LastElement.style.left = my_cities[recent_city].left;
-            LastElement.style.top = my_cities[recent_city].top;
-            console.log(LastElement.style.left); // my_cities[recent_city].top;
-            LastElement.style.left = my_cities[recent_city].left;
-
-
-
-        }
-
-        watch(LastElement.id);
-        console.log(my_cities[recent_city].cityname);
-        socket.emit("getcitynewdata", my_cities[recent_city].cityname);
+    function loadStoredElements(index){
+        console.log(index+ 'index')
+        citycntr = index;
+        console.log(myElements[citycntr].elemid)
+        addNewDataElement(myElements[index].elemid, function(element){
+            LastElement = element;
+            watch(LastElement.id);
+            console.log("rajzolom: " + weatherdata[index]);
+            buildChart(LastElement.id, JSON.stringify(weatherdata[index]));
+        });
 
     }
 
-    function refreshing()
+    function setGlobalVariable()
     {
+        //ser recent_city counter to the last stored element id
+        if(myElements.length > 0) {
+            var lastElementId = myElements[myElements.length-1].elemid;
+            lastElementId = lastElementId.split('_');
+            recent_city = lastElementId[lastElementId.length - 1];
+            console.log("utolso elem:" + recent_city);
+        } else {
+            recent_city = 0;
+        }
+
         socket.on("buildchart", function (data){
-            buildChart(data);
+            buildChart('linechart_material_' + recent_city, data);
         });
 
     }
@@ -428,20 +438,43 @@
 
     function moveR(){
         positionlist = [];
-        for (i=0; i<recent_city; i++){
-            var tmp = document.getElementById('linechart_material_'+i );
-            if(tmp){
-                console.log("kiir");
-                console.log(tmp);
-                var o ={};
-                o.id = dashboardid;
-                o.elemid=tmp.id;
-                o.cityname = cities[i];
-                o.top = tmp.style.top;
-                o.left = tmp.style.left;
-                o.charts = document.getElementById('charts').style.height;
-                positionlist.push(o);
+
+        //if myElements list empty, walk through elements sequentially
+
+        if (myElements.length == 0) {
+            for (i = 0; i < recent_city; i++) {
+                var tmp = document.getElementById('linechart_material_' + i);
+                if (tmp) {
+                    console.log("kiir");
+                    console.log(tmp);
+                    var o = {};
+                    o.id = dashboardid;
+                    o.elemid = tmp.id;
+                    o.cityname = cities[i];
+                    o.top = tmp.style.top;
+                    o.left = tmp.style.left;
+                    o.charts = document.getElementById('charts').style.height;
+                    positionlist.push(o);
+                }
             }
+        } else {
+            myElements.forEach(function(elem){
+                var tmp = document.getElementById(elem.elemid);
+                if (tmp) {
+                    console.log("kiir");
+                    console.log(tmp);
+                    var o = {};
+                    o.id = dashboardid;
+                    o.elemid = tmp.id;
+                    o.cityname = cities[i];
+                    o.top = tmp.style.top;
+                    o.left = tmp.style.left;
+                    o.charts = document.getElementById('charts').style.height;
+                    positionlist.push(o);
+                }
+            })
+
+
         }
         console.log(JSON.stringify(positionlist));
         socket.emit("positions", positionlist);
@@ -483,13 +516,17 @@
     }
 
 
+    function readyHandler(){
+        console.log("+++++++++++++++")
+    }
+
 
 
 
 
     /********************** Chart inicializálása**************************/
 
-    function createchart(chartJSON, callback) {
+    function createchart(chartID, chartJSON, callback) {
         chartdata = new google.visualization.DataTable();
         chartdata.addColumn('string', 'Day');
         chartdata.addColumn('number', 'Napi átlag C°');
@@ -516,24 +553,33 @@
         };
         console.log(recent_city);
 
-        console.log(document.getElementById('linechart_material_'+ recent_city ));
-        chart = new google.charts.Line(document.getElementById('linechart_material_'+recent_city ));
-        recent_city++
+        console.log(document.getElementById(chartID));
+        chart = new google.charts.Line(document.getElementById(chartID));
 
-        modifyAfterChartDraw();
-
+        google.visualization.events.addListener(chart, 'select', readyHandler);
 
         var rows = createArray (chartJSON);
-        if(recent_city<my_cities.length){
-
-            console.log('ajaj');
-        }
-
         chartdata.addRows(rows);
 
 
+       /* if (myElements.length == 0) {
+            magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
+        } else if(chartID == myElements[myElements.length-1].elemid){
+            subscribeRoom();
+            magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
+            setTimeout(modifyPositions, 500);
+        }*/
+        console.log('ajaj');
+        console.log(loaded)
+        console.log(citycntr);
+        console.log(myElements.length)
 
         callback();
+        if (chartID!=myElements[myElements.length-1].elemid){
+            setTimeout(function(){loadStoredElements(citycntr+1)}, 300)
+        } else {
+
+        }
         var aTag = document.createElement('a');
         aTag.onclick = removeItem;
         aTag.innerHTML = "";
@@ -587,29 +633,16 @@
         return f;
     }
 
-
-
-    function modifyAfterChartDraw() {
-        if(my_cities.length!=0){
-
-            // LastElement.id = my_cities[recent_city].elemid;					//beállítom hogy az adott elem ID-ja megegyezzen a szerveren tárolt elemID-val (törlés miatt elcsúszhatott volna)
-
-        }
-
-
-
-    }
-
-
-
     /********************** Chart adatai**************************/
 
     google.load('visualization', '1.1', {packages: ['line']});
-    //console.log("meghívva");
-    google.setOnLoadCallback(drawChart);
 
-    function drawChart() {
+    google.setOnLoadCallback(nextChart);
 
+    function nextChart() {
+        if(myElements.length>0){
+            loadStoredElements(0);
+        }
     }
 
 </script>
