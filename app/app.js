@@ -66,10 +66,18 @@ app.get('/dash/:id', function (req, res) {
     }
     console.log(req.params.id);
 
+    var showData = []
+    dashboards[req.params.id].forEach(function(elem){
+        console.log('elem');
+        showData.push(allCitiesData[elem.cityname]);
+    });
+    console.log(showData);
+
     res.render("socket", {
         dashboardid: req.params.id,
         mydashboard: JSON.stringify(choice),
-        currentDashElements: JSON.stringify(dashboards[req.params.id])
+        currentDashElements: JSON.stringify(dashboards[req.params.id]),
+        weatherData:JSON.stringify(showData)
     });
     // res.sendfile(__dirname + '/views/socket.html');;
 });
