@@ -102,21 +102,12 @@ function checkUpdate(elem, cb){
     if ( allCitiesData[elem.city.name]){
         //a valaszt osszehasonlitjuk a tarolt valtozattal
         if (JSON.stringify(allCitiesData[elem.city.name].list) == JSON.stringify(elem.list)){
-            //console.log(JSON.stringify(elem.list));
-           // console.log(allCitiesData[elem.city.name].list)
             cb(false);
-            console.log("nemfrissult");
         } else {
-            console.log("frissult");
-           // console.log(allCitiesData[elem.city.name].list);
-           // console.log(elem.list)
             cb(true)
         }
     } else {
         cb(true)
-
-        console.log("frissult");
-
     }
 
 }
@@ -232,9 +223,9 @@ function getData() {
                                 allCitiesData[city.name] = body;
                                 //if the callback function returns true
                                 if (arguments[0]){
-                                    console.log(arguments[0]);
-                                    console.log("juhuuuu");
-                                    console.log(city.name)
+                                   // console.log(arguments[0]);
+                                   // console.log("juhuuuu");
+                                   // console.log(city.name)
                                     io.to(city.name).emit('newdata', JSONstring);
                                 }
                             });
@@ -276,7 +267,6 @@ setInterval(getData, 15000);
 
 io.sockets.on('connection', function (socket) {
 
-
     clients.push(socket);
     //---------------aktív kapcsolatok karbantartásához--------------
     console.log('Connected user is:', clients.length);
@@ -302,6 +292,25 @@ io.sockets.on('connection', function (socket) {
         console.log(socket.rooms.includes(data));
         socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
     });
+
+    socket.on('subscribeStoredelementChanges', function(data){
+        //kivalogatjuk a kulonbozo varosokat, mindet csak egyszer!
+        var elements = []
+        dashboards[data].forEach(function(elem){
+            if(elements.includes(elem.cityname)==false){
+                console.log(elem.cityname)
+                elements.push(elem.cityname);
+            }
+        });
+        console.log(elements)
+        //elements tarolja a varosok neveit
+        elements.forEach(function(elem){
+            socket.join(elem);
+        })
+
+
+
+    })
 
     //when the dashboard reload
 

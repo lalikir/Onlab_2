@@ -344,6 +344,7 @@
 
 
         if(chartID==myElements[myElements.length-1].elemid) {
+            console.log("betoltodott");
             subscribeRoom();
             magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
             setTimeout(modifyPositions, 500);
@@ -361,6 +362,8 @@
 
     var socket = io();
     socket.on('info', function (data) {
+        console.log("infoasdopasodsőpadőpasodőpasodőp")
+        socket.emit("subscribeStoredelementChanges", dashboardid);
         var cities = [];
         for (var i=0 in data){
             cities.push(data[i].name);
