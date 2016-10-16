@@ -20,9 +20,6 @@
 
 
 
-
-
-
     <!-- *******	Ez majd akkor kell amikor kikerül innen a chart a külön fájlba	********
         <script src="https://raw.githack.com/lalikir/onlab_2015_01/master/js/line_chart.js"/> </script>
       -->
@@ -180,19 +177,6 @@
 
         var mydata = new Object();
 
-
-        //console.log(myElements[myElements.length-1].elemid.split('_'));
-        /*if(my_cities.length!=0){
-            charts_number = my_cities.length;
-            if(recent_city<charts_number){
-
-                loadStoredElements();
-            }
-            else if (recent_city == charts_number){
-                moveR();
-
-            }
-        }*/
         var $container = $('.packery').packery();
 
         $("#kuld").on('click', function() {
@@ -339,16 +323,7 @@
         createchart(chartID, city_json,  function() { chart.draw(chartdata, options);});
         cities.push(city_json.city.name);
 
-        //!!!!!!!!!!!!!!EZMÉGKELL!!!!!!!!!!!!!!!!!!!!!!!
 
-/*
-       if(chartID!=myElements[myElements.length-1].elemid) {
-           console.log(chartID);
-           citycntr++;
-           loadStoredElements(citycntr);
-        }
-        else{*/
-        //setTimeout(function(){        loadStoredElements(citycntr);}, 2000);
         if(chartID==myElements[myElements.length-1].elemid) {
             subscribeRoom();
             magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
@@ -561,14 +536,6 @@
         var rows = createArray (chartJSON);
         chartdata.addRows(rows);
 
-
-       /* if (myElements.length == 0) {
-            magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
-        } else if(chartID == myElements[myElements.length-1].elemid){
-            subscribeRoom();
-            magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
-            setTimeout(modifyPositions, 500);
-        }*/
         console.log('ajaj');
         console.log(loaded)
         console.log(citycntr);
