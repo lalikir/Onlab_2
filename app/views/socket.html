@@ -335,9 +335,9 @@
         var temp = $('.packery').children()[0].className.split('_')[0];
         //console.log(city_json)
         //document.getElementById('test').innerHTML = city_json.list[1].temp.day-273.15;
+
         createchart(chartID, city_json,  function() { chart.draw(chartdata, options);});
         cities.push(city_json.city.name);
-        sleep(500)
 
         //!!!!!!!!!!!!!!EZMÉGKELL!!!!!!!!!!!!!!!!!!!!!!!
 
