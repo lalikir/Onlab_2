@@ -309,11 +309,14 @@
 
                 console.log('Incoming message:');
 
+                var time = 500;
+
                 $('.packery').children().each(function () {
                     if (this.className.split('_')[0] == response.city.name) {
-                        console.log("ejejej")
-                        var newdata = buildChart(this.id, JSON.stringify(response));
-                        sleep(500);
+                        console.log("ejejej");
+                        var current = this;
+                        setTimeout(function(){console.log (current.id);buildChart(current.id, JSON.stringify(response))}, time);
+                        time+=500;
                     }
                 });
 
