@@ -156,7 +156,7 @@
     var positionlist = [];
     var sizestring = "";
     var actualElement = {};
-    var loaded = 0;
+    var subscribed = 0;             //vizsgaljuk hogy betoltodott-e minden korabbi elem
 
 
     /**
@@ -182,7 +182,7 @@
         $("#kuld").on('click', function() {
             recent_city++;
             citycntr = recent_city;
-            addNewDataElement('linechart_material_' + recent_city, function(element){
+            addNewDataElement('linechart_material_' + recent_city, $("#city_list option:selected").text(), function(element){
                 LastElement = element;
                 watch(LastElement.id);
                 socket.emit('newcity', $("#city_list option:selected").text())
@@ -201,12 +201,12 @@
         });
     });
 
-    function addNewDataElement(elemID, cb) {
+    function addNewDataElement(elemID, cityName, cb) {
         var $container = $('.packery').packery();
 
         var elems = [];
-
-        var elem = getItemElement(elemID);
+        //a cityname az adott id-hoz tarolt varos neve, ami a classname elso parametere lesz
+        var elem = getItemElement(elemID, cityName);
         elems.push(elem);
 
         // append elements to container
@@ -219,7 +219,7 @@
 
     }
 
-    function getItemElement(elemID) {
+    function getItemElement(elemID, cityName) {
 
         // Create new div element to store new data from server
         var elem = document.createElement('div');
@@ -238,9 +238,17 @@
             var widthClass = 'w6';
             var heightClass = 'h6';
         }
+
+        /*
+         //remove not alphanumeric characters from selected element
+         var selectedItem = $("#city_list option:selected").text().toString();
+         selectedItem = selectedItem.replace(/[^0-9a-z]/gi, '');
+         console.log(selectedItem);
+         */
+
         var elemtype = "linechart";
         elem.id = elemID;
-        elem.className = $("#city_list option:selected").text() + '_' +  ' ' + $("#sizes option:selected").text() + ' ' +
+        elem.className = cityName + '_' +  ' ' + $("#sizes option:selected").text() + ' ' +
                 elemtype + ' ' + 'item ' + widthClass + ' ' + heightClass ;
 
         return elem;
@@ -290,19 +298,27 @@
      */
 
     function subscribeRoom() {
-        console.log('itt');
-        socket.on('newdata', function(response){
+        //a subscribed akkor valt egyesra, ha minden betoltodott, igy elkerulheto, hogy tobbszor iratkozzunk
+        //fel egy esemenyre
+        if(subscribed==0) {
+            console.log('itt');
+            socket.on('newdata', function (response) {
 
-            console.log(response);
+                console.log(JSON.parse(response).city.name);
+                response = JSON.parse(response)
 
-            console.log('Incoming message:');
+                console.log('Incoming message:');
 
-            $('.packery').children().each(function () {
-                console.log(this.className.split('_')[0]);
-            });
+                $('.packery').children().each(function () {
+                    if (this.className.split('_')[0] == response.city.name) {
+                        console.log("ejejej")
+                        var newdata = buildChart(this.id, JSON.stringify(response));
+                        sleep(500);
+                    }
+                });
 
-            buildChart(response);
-        })
+            })
+        }
     }
 
     /***
@@ -328,6 +344,7 @@
             subscribeRoom();
             magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
             setTimeout(modifyPositions, 500);
+            subscribed = 1;
         }
 /*
 
@@ -359,10 +376,11 @@
     //BETÖLTÉSKOR FELTÖLTI AZ OLDALT
 
     function loadStoredElements(index){
+        console.log("loadingfunction");
         console.log(index+ 'index')
         citycntr = index;
         console.log(myElements[citycntr].elemid)
-        addNewDataElement(myElements[index].elemid, function(element){
+        addNewDataElement(myElements[index].elemid, myElements[index].cityname, function(element){
             LastElement = element;
             watch(LastElement.id);
             console.log("rajzolom: " + weatherdata[index]);
@@ -537,12 +555,13 @@
         chartdata.addRows(rows);
 
         console.log('ajaj');
-        console.log(loaded)
+        console.log(subscribed)
         console.log(citycntr);
-        console.log(myElements.length)
+        //console.log(myElements.includes(elemid.chartID))
+
 
         callback();
-        if (chartID!=myElements[myElements.length-1].elemid){
+        if (chartID!=myElements[myElements.length-1].elemid && subscribed == 0){
             setTimeout(function(){loadStoredElements(citycntr+1)}, 300)
         } else {
 

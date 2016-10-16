@@ -97,6 +97,31 @@ function sleep(milliseconds) {
  *                                            ***
  **********************************************/
 
+function checkUpdate(elem, cb){
+    //megvizsgaljuk hogy egyaltalan lekerdeztuk-e mar az elemet
+    if ( allCitiesData[elem.city.name]){
+        //a valaszt osszehasonlitjuk a tarolt valtozattal
+        if (JSON.stringify(allCitiesData[elem.city.name].list) == JSON.stringify(elem.list)){
+            //console.log(JSON.stringify(elem.list));
+           // console.log(allCitiesData[elem.city.name].list)
+            cb(false);
+            console.log("nemfrissult");
+        } else {
+            console.log("frissult");
+           // console.log(allCitiesData[elem.city.name].list);
+           // console.log(elem.list)
+            cb(true)
+        }
+    } else {
+        cb(true)
+
+        console.log("frissult");
+
+    }
+
+}
+
+
 
 function getDataFromServer(socket, param) {
 
@@ -163,7 +188,7 @@ function getDataFromServer(socket, param) {
  ***/
 
 
-var getData = setInterval(function () {
+function getData() {
     async.eachSeries(parsedJSON, function (city, nextCity) {
             async.series([
                 function (next) {
@@ -197,13 +222,31 @@ var getData = setInterval(function () {
                              */
                             //socket.emit("buildchart", JSONstring);
 
-                            allCitiesData[city.name] = body;
+                            //ellenorizzuk hogy valtioztak-e az adatok az utolso lekerdezes ota
+                            if(body.city.name == "Budapest I. keruelet"){
+                                body.list[0].temp.day = Math.random()*100+272;
+                            }
+
+
+                            checkUpdate(body, function (){
+                                allCitiesData[city.name] = body;
+                                //if the callback function returns true
+                                if (arguments[0]){
+                                    console.log(arguments[0]);
+                                    console.log("juhuuuu");
+                                    console.log(city.name)
+                                    io.to(city.name).emit('newdata', JSONstring);
+                                }
+                            });
 
 
                             /*
                             Itt minden egyes lekérdezéskor beküldjük az adatot (jelenleg ugyanabba) a szobába.
                              */
-                            io.to('Budapest I. keruelet').emit('newdata', JSONstring);
+                            //console.log(body.list);
+                            //console.log(body);
+
+
 
 
                             next();
@@ -219,9 +262,10 @@ var getData = setInterval(function () {
             }
         }
     );
-}, 5000);
+}
 
-getData;
+getData();
+setInterval(getData, 15000);
 
 /**********************************************
  *                                            ***
@@ -247,9 +291,15 @@ io.sockets.on('connection', function (socket) {
     socket.on('newcity', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
     {
         //Hozzáadjuk a városhoz tartozó szobához a klienst
+
         console.log(data);
-        socket.join(data);
-        console.log(allCitiesData[data]);
+        if(socket.rooms.includes(data)==false){
+            socket.join(data);
+            console.log("csatlakozott")
+        }
+
+        //!!! nodemon --harmony_array_includes app.js
+        console.log(socket.rooms.includes(data));
         socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
     });
 
