@@ -205,8 +205,7 @@ function getData() {
                             //			var formatted = t.format("dd.mm.yyyy hh:MM:ss");
 
 
-                            // Print the json response
-                            JSONstring = JSON.stringify(body);
+
 
                             /*
                              ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
@@ -216,7 +215,11 @@ function getData() {
                             //ellenorizzuk hogy valtioztak-e az adatok az utolso lekerdezes ota
                             if(body.city.name == "Budapest I. keruelet"){
                                 body.list[0].temp.day = Math.random()*100+272;
+                                console.log(body.list[0].temp.day);
                             }
+                            
+                            // Print the json response
+                            JSONstring = JSON.stringify(body);
 
 
                             checkUpdate(body, function (){
