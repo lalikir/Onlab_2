@@ -157,7 +157,13 @@
     var sizestring = "";
     var actualElement = {};
     var subscribed = 0;             //vizsgaljuk hogy betoltodott-e minden korabbi elem
+    var loadTime = false;
 
+    var $container = $('.packery').packery({
+        itemSelector: '.item',
+        columnWidth: 80,
+        rowHeight: 80
+    });
 
     /**
      *
@@ -171,6 +177,10 @@
 
         //subscribe "buildchart" event and set recent_city
         setGlobalVariable();
+        socket.emit("hello", dashboardid);
+        socket.on("newPosition", function(data){
+            console.log(data);
+        })
 
             //LastElement=addNewDataElement(elem.elemid);
 
@@ -202,7 +212,6 @@
     });
 
     function addNewDataElement(elemID, cityName, cb) {
-        var $container = $('.packery').packery();
 
         var elems = [];
         //a cityname az adott id-hoz tarolt varos neve, ami a classname elso parametere lesz
@@ -213,6 +222,11 @@
         $container.append(elems);
         // add and lay out newly appended elements
         $container.packery('appended', elems);
+        var $currentItem = $container.find(elems);
+        $currentItem.draggable();
+
+        $container.packery( 'bindUIDraggableEvents', $currentItem );
+
         console.log("hozzaadva");
 
         cb(elem);
@@ -262,11 +276,12 @@
     //Csempe kezelése
 
     function magic() {
-
-        var $container = $('.packery').packery({
+/*
+       var $container = $('.packery').packery({
             columnWidth: 80,
             rowHeight: 80
         });
+
         // get item elements, jQuery-ify them
         var $itemElems = $container.find('.item');
         // make item elements draggable
@@ -274,7 +289,7 @@
         // bind Draggable events to Packery
         $container.packery( 'bindUIDraggableEvents', $itemElems );
 
-        console.log("uzenet");
+        console.log("uzenet");*/
     };
 
 
@@ -344,10 +359,14 @@
 
 
         if(chartID==myElements[myElements.length-1].elemid) {
-            console.log("betoltodott");
-            subscribeRoom();
-            magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
-            setTimeout(modifyPositions, 500);
+            if(loadTime == false){
+                console.log("betoltodott");
+                subscribeRoom();
+                magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
+                setTimeout(modifyPositions, 500);
+                loadTime = true;
+            }
+
             subscribed = 1;
         }
 /*
@@ -362,7 +381,7 @@
 
     var socket = io();
     socket.on('info', function (data) {
-        console.log("infoasdopasodsőpadőpasodőpasodőp")
+        console.log("info")
         socket.emit("subscribeStoredelementChanges", dashboardid);
         var cities = [];
         for (var i=0 in data){

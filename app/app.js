@@ -64,7 +64,6 @@ app.get('/dash/:id', function (req, res) {
         dashboards[req.params.id] = new Array();
         choice = dashboards[req.params.id];
     }
-    console.log(req.params.id);
 
     var showData = []
     dashboards[req.params.id].forEach(function(elem){
@@ -280,6 +279,11 @@ io.sockets.on('connection', function (socket) {
      socket.emit('info', { msg: Math.floor((Math.random() * 100) + 1 )});
      *******/
 
+    socket.on("hello", function(data){
+        socket.join(data);
+    })
+
+
         //when user pushed the "küld" button
     socket.on('newcity', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
     {
@@ -338,6 +342,7 @@ io.sockets.on('connection', function (socket) {
 
         dashboards[data.id].push(obj);
         console.log('dash');
+
         console.log(dashboards);
 
         //console.log(dashboards[data.id].length);
@@ -346,16 +351,14 @@ io.sockets.on('connection', function (socket) {
 
     socket.on("positions", function (data) {
 
-            //console.log(data[0].id);
-            //console.log(data.length);
-            //console.log(dashboards[data.id].length);
-
 
             //console.log(pos.elemid);
             console.log("elemek:");
             console.log(data);
             console.log(dashboards[data[0].id].length);
             console.log(dashboards[data[0].id]);
+
+            io.to(data[0].id).emit("newPositions", JSON.stringify(dashboards[data[0].id]));
 
             for (i = 0; i < dashboards[data[0].id].length; i++) {
                 if (dashboards[data[0].id][i].elemid == data[i].elemid) {
