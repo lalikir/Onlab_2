@@ -287,6 +287,8 @@ io.sockets.on('connection', function (socket) {
         //when user pushed the "küld" button
     socket.on('newcity', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
     {
+        console.log("newcity")
+
         //Hozzáadjuk a városhoz tartozó szobához a klienst
 
         console.log(data);
@@ -301,6 +303,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('subscribeStoredelementChanges', function(data){
+        console.log("subscribe:")
         //kivalogatjuk a kulonbozo varosokat, mindet csak egyszer!
         var elements = []
         dashboards[data].forEach(function(elem){
@@ -358,7 +361,6 @@ io.sockets.on('connection', function (socket) {
             console.log(dashboards[data[0].id].length);
             console.log(dashboards[data[0].id]);
 
-            io.to(data[0].id).emit("newPositions", JSON.stringify(dashboards[data[0].id]));
 
             for (i = 0; i < dashboards[data[0].id].length; i++) {
                 if (dashboards[data[0].id][i].elemid == data[i].elemid) {
@@ -367,8 +369,10 @@ io.sockets.on('connection', function (socket) {
                     dashboards[data[0].id][i].wrapper_height = data[i].charts;
 
                 }
-
             }
+        //amikor frissitettuk a poziciokat, kikuldjuk a frissitett adatokat a klienseknek
+            io.to(data[0].id).emit("newPositions", JSON.stringify(dashboards[data[0].id]));
+
         }
     )
 

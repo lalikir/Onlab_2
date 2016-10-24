@@ -158,6 +158,8 @@
     var actualElement = {};
     var subscribed = 0;             //vizsgaljuk hogy betoltodott-e minden korabbi elem
     var loadTime = false;
+    var blocked = false;        //az elemek mozgasat csak akkor figyeljuk ha ennek az erteke "false"
+
 
     var $container = $('.packery').packery({
         itemSelector: '.item',
@@ -174,12 +176,31 @@
 
 
     $(document).ready(function() {
-
+        
         //subscribe "buildchart" event and set recent_city
         setGlobalVariable();
-        socket.emit("hello", dashboardid);
-        socket.on("newPosition", function(data){
-            console.log(data);
+        socket.emit("hello", dashboardid);          //ertesiti a szervert hogy az adott azonositohoz uj kapcsolat van
+        socket.on("newPositions", function(data){       //amikor valamelyik kliens mozgatja az elemeket ez hivodik meg
+            var recieved = JSON.parse(data);
+
+            if (recieved.length > my_cities.length){
+                my_cities.push(recieved[length-1]);
+                loadStoredElements((my_cities.length)-1);
+            }
+
+            for (i in recieved){
+                blocked = true;
+                //amig az elemek pozicioi helyükre kerülnek, kikapcsoljuk a poziciofigyelest hogy ne keruljon vegtelen ciklusba
+                setTimeout(function(){blocked = false}, 1000);
+                my_cities[i].top = recieved[i].top;
+                my_cities[i].left = recieved[i].left;
+            }
+
+            //abban az esetben ha nem csak a poziciók módosultak, hanem új elem is hozzáadásra került.
+
+
+
+            modifyPositions();
         })
 
             //LastElement=addNewDataElement(elem.elemid);
@@ -271,32 +292,6 @@
 
 
 
-
-
-    //Csempe kezelése
-
-    function magic() {
-/*
-       var $container = $('.packery').packery({
-            columnWidth: 80,
-            rowHeight: 80
-        });
-
-        // get item elements, jQuery-ify them
-        var $itemElems = $container.find('.item');
-        // make item elements draggable
-        $itemElems.draggable();
-        // bind Draggable events to Packery
-        $container.packery( 'bindUIDraggableEvents', $itemElems );
-
-        console.log("uzenet");*/
-    };
-
-
-
-
-
-
     function sleep(milliseconds) {
         var start = new Date().getTime();
         for (var i = 0; i < 1e7; i++) {
@@ -313,7 +308,7 @@
      */
 
     function subscribeRoom() {
-        //a subscribed akkor valt egyesra, ha minden betoltodott, igy elkerulheto, hogy tobbszor iratkozzunk
+        //a subscribed akkor valt egyesre, ha minden betoltodott, igy elkerulheto, hogy tobbszor iratkozzunk
         //fel egy esemenyre
         if(subscribed==0) {
             console.log('itt');
@@ -359,13 +354,10 @@
 
 
         if(chartID==myElements[myElements.length-1].elemid) {
-            if(loadTime == false){
                 console.log("betoltodott");
                 subscribeRoom();
-                magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
-                setTimeout(modifyPositions, 500);
-                loadTime = true;
-            }
+  //              magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
+                setTimeout(modifyPositions, 0);
 
             subscribed = 1;
         }
@@ -447,14 +439,18 @@
 
 
         function moveReaction() {
-            if (moveTimeout)
-                clearTimeout(moveTimeout);
 
-            moveTimeout=setTimeout(moveR,500);
+                if (moveTimeout)
+                    clearTimeout(moveTimeout);
+
+                moveTimeout = setTimeout(moveR, 500);
+
         }
     }
 
     function moveR(){
+
+
         positionlist = [];
 
         //if myElements list empty, walk through elements sequentially
@@ -495,7 +491,9 @@
 
         }
         console.log(JSON.stringify(positionlist));
-        socket.emit("positions", positionlist);
+        if(blocked == false){
+            socket.emit("positions", positionlist);
+        }
 
     }
 
