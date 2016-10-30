@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/packery/1.4.3/packery.pkgd.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/draggabilly/1.2.0/draggabilly.pkgd.js"></script>
     <script src="https://raw.githack.com/lalikir/onlab_2015_01/master/app/public/js/jquery-watch.js"> </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 
@@ -110,32 +110,37 @@
 <body>
 
 
+<div class=container-fluid>
+	<div id="select_city" class="form-group col-sm-3">
+		<label for="city_list">	Város:</label>
+		<select id="city_list" class= "form-control"> </select>
+	</div>
 
-<div id="select_city">
-    Város:
-    <select id="city_list"> </select>
-    <input type="button" onclick="magic()" id="kuld" value="Kiválaszt!"></input>
+	<div id="select_size" class="form-group col-sm-3">
+		<label for="city_list"> Méret:</label>
+
+		<select id="sizes" class="form-control" >
+			<option value="Kicsi">Kicsi</option>
+			<option value="Közepes" selected="selected">Közepes</option>
+			<option value="Nagy">Nagy</option>
+		</select>
+	</div>
+	<input type="button" class="btn btn-primary" style="margin-top: 25px;" onclick="magic()" id="kuld" value="Kiválaszt!"></input>
+	
+	<div class="col-sm-12">
+
+
+	<!--   <div>Holnapi hőmérséklet: <p id= "test" style="color:blue;font-weight:bold"></p></div>	-->
+
+
+
+	<h1>Hőmérsékleti grafikonok</h1>
+
+	<div id = "charts" class="packery">
+
+	</div>
+	</div>
 </div>
-
-<div id="select_size">
-    Méret:
-    <select id="sizes">
-        <option value="Kicsi">Kicsi</option>
-        <option value="Közepes" selected="selected">Közepes</option>
-        <option value="Nagy">Nagy</option>
-    </select>
-</div>
-
-<!--   <div>Holnapi hőmérséklet: <p id= "test" style="color:blue;font-weight:bold"></p></div>	-->
-
-
-
-<h1>Hőmérsékleti grafikonok</h1>
-
-<div id = "charts" class="packery">
-
-</div>
-
 
 
 
