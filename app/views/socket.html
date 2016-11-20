@@ -184,7 +184,7 @@
         
         //subscribe "buildchart" event and set recent_city
         setGlobalVariable();
-        socket.emit("hello", dashboardid);          //ertesiti a szervert hogy az adott azonositohoz uj kapcsolat van
+        socket.emit("joinrequest", dashboardid);          //ertesiti a szervert hogy az adott azonositohoz uj kapcsolat van
         socket.on("newPositions", function(data){       //amikor valamelyik kliens mozgatja az elemeket ez hivodik meg
             var recieved = JSON.parse(data);
 

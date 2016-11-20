@@ -279,7 +279,7 @@ io.sockets.on('connection', function (socket) {
      socket.emit('info', { msg: Math.floor((Math.random() * 100) + 1 )});
      *******/
 
-    socket.on("hello", function(data){
+    socket.on("joinrequest", function(data){
         socket.join(data);
     })
 
