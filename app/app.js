@@ -13,7 +13,7 @@ var is_client = 0;
 var temperatures = [];
 var dashboards = {};
 var dash_id;
-var AppId = "fd4d21cfaa35d69abf9dfd00a761cb65";
+var AppId = "d79cb29e34ec57ae4501267d02aac6a9";
 var currentDashElements = {};
 var allCitiesData = {}
 var currentUsedCities = {};
@@ -113,7 +113,7 @@ function checkUpdate(elem, cb){
 
 
 
-function getDataFromServer(socket, param) {
+/*function getDataFromServer(socket, param) {
 
     //search city ID in city.json
     console.log('fut')
@@ -168,7 +168,7 @@ function getDataFromServer(socket, param) {
 
     })
     return;
-}
+}*/
 
 /***
  *
@@ -188,7 +188,7 @@ function getData() {
                 function (next) {
                     var url = "http://api.openweathermap.org/data/2.5/forecast/daily?id=" + city_id + "&appid=" + AppId;
 
-                    //console.log(url);
+                    console.log(url);
 
 
                     request({
@@ -209,6 +209,7 @@ function getData() {
                             /*
                              ** EZ KÜLDI KI A KLIENSNEK AZ ADATOKAT
                              */
+							 
                             //socket.emit("buildchart", JSONstring);
 
                             //ellenorizzuk hogy valtioztak-e az adatok az utolso lekerdezes ota
@@ -219,6 +220,7 @@ function getData() {
                             
                             // Print the json response
                             JSONstring = JSON.stringify(body);
+							console.log("response")
 
 
                             checkUpdate(body, function (){
@@ -251,14 +253,14 @@ function getData() {
             if (err) {
                 console.log(err);
             } else {
-                //console.log (allCitiesData)
+                console.log (allCitiesData)
             }
         }
     );
 }
 
 getData();
-setInterval(getData, 15000);
+//setInterval(getData, 60000);
 
 /**********************************************
  *                                            ***
@@ -324,14 +326,14 @@ io.sockets.on('connection', function (socket) {
 
     //when the dashboard reload
 
-    socket.on('getcitynewdata', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
+/*   socket.on('getcitynewdata', function (data)			//egy ugyanilyennel nyomon lehet követni a a dashboardokat   ______
     {
 
         //socket.emit('torefresh', { msg: "reggeli"});
         //console.log(data);
         //console.log("get");
         socket.emit("buildchart", JSON.stringify(allCitiesData[data]));
-    });
+    });*/
 
     socket.on('dash', function (data) {
 

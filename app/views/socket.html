@@ -117,8 +117,7 @@
 	</div>
 
 	<div id="select_size" class="form-group col-sm-3">
-		<label for="city_list"> Méret:</label>
-
+		<label for="sizes"> Méret:</label>
 		<select id="sizes" class="form-control" >
 			<option value="Kicsi">Kicsi</option>
 			<option value="Közepes" selected="selected">Közepes</option>
@@ -154,7 +153,7 @@
     var options;
     var chartdata;
     var charts_number;
-    var recent_city = 0;      //aktuális elemek száma
+    var highestId = 0;      //aktuális elemek száma
     var citycntr = 0;
     var LastElement = 0;      //utolsóként hozzáadott elem
     var cities = [];
@@ -182,7 +181,7 @@
 
     $(document).ready(function() {
         
-        //subscribe "buildchart" event and set recent_city
+        //subscribe "buildchart" event and set highestId
         setGlobalVariable();
         socket.emit("joinrequest", dashboardid);          //ertesiti a szervert hogy az adott azonositohoz uj kapcsolat van
         socket.on("newPositions", function(data){       //amikor valamelyik kliens mozgatja az elemeket ez hivodik meg
@@ -195,7 +194,7 @@
 
             for (i in recieved){
                 blocked = true;
-                //amig az elemek pozicioi helyükre kerülnek, kikapcsoljuk a poziciofigyelest hogy ne keruljon vegtelen ciklusba
+                //amig az elemek pozicioi helyükre kerülnek, kikapcsoljuk a poziciofigyelest
                 setTimeout(function(){blocked = false}, 1000);
                 my_cities[i].top = recieved[i].top;
                 my_cities[i].left = recieved[i].left;
@@ -216,9 +215,9 @@
         var $container = $('.packery').packery();
 
         $("#kuld").on('click', function() {
-            recent_city++;
-            citycntr = recent_city;
-            addNewDataElement('linechart_material_' + recent_city, $("#city_list option:selected").text(), function(element){
+            highestId++;
+            citycntr = highestId;
+            addNewDataElement('linechart_material_' + highestId, $("#city_list option:selected").text(), function(element){
                 LastElement = element;
                 watch(LastElement.id);
                 socket.emit('newcity', $("#city_list option:selected").text())
@@ -359,7 +358,6 @@
 
 
         if(chartID==myElements[myElements.length-1].elemid) {
-                console.log("betoltodott");
                 subscribeRoom();
   //              magic();          //amikor már minden vacak betöltődött, akkor meghívjuk ezt a függvényt
                 setTimeout(modifyPositions, 0);
@@ -413,18 +411,18 @@
 
     function setGlobalVariable()
     {
-        //ser recent_city counter to the last stored element id
+        //ser highestId counter to the last stored element id
         if(myElements.length > 0) {
             var lastElementId = myElements[myElements.length-1].elemid;
             lastElementId = lastElementId.split('_');
-            recent_city = lastElementId[lastElementId.length - 1];
-            console.log("utolso elem:" + recent_city);
+            highestId = lastElementId[lastElementId.length - 1];
+            console.log("utolso elem:" + highestId);
         } else {
-            recent_city = 0;
+            highestId = 0;
         }
 
         socket.on("buildchart", function (data){
-            buildChart('linechart_material_' + recent_city, data);
+            buildChart('linechart_material_' + highestId, data);
         });
 
     }
@@ -447,13 +445,12 @@
 
                 if (moveTimeout)
                     clearTimeout(moveTimeout);
-
-                moveTimeout = setTimeout(moveR, 500);
+                moveTimeout = setTimeout(sendPosition, 500);
 
         }
     }
 
-    function moveR(){
+    function sendPosition(){
 
 
         positionlist = [];
@@ -461,7 +458,7 @@
         //if myElements list empty, walk through elements sequentially
 
         if (myElements.length == 0) {
-            for (i = 0; i < recent_city; i++) {
+            for (i = 0; i < highestId; i++) {
                 var tmp = document.getElementById('linechart_material_' + i);
                 if (tmp) {
                     console.log("kiir");
@@ -572,7 +569,7 @@
             width: widthClass,
             height: heightClass
         };
-        console.log(recent_city);
+        console.log(highestId);
 
         console.log(document.getElementById(chartID));
         chart = new google.charts.Line(document.getElementById(chartID));
@@ -633,7 +630,6 @@
                     var t = new Date( (array.list[i].dt)*1000 );
 
                     var resultstring = month[t.getMonth()] + "." + t.getDate();
-                    //var formatted = t.format("dd.mm.yyyy hh:MM:ss");
 
 
                     f[i][j]=resultstring;
